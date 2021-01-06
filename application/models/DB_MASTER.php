@@ -52,6 +52,7 @@ class DB_MASTER extends CI_Model
 		if ($UUID)
 			$CI->db->set('id', 'UUID()', FALSE);
 		$data['created_at'] = date('Y-m-d H:i:s');
+		$data['deleted'] = 0;
 		$query = $CI->db->insert($table, $data);
 		if ($query) {
 			$id = $CI->db->insert_id();
