@@ -49,8 +49,9 @@ class DB_MASTER extends CI_Model
 	public static function insert($table, $data, $UUID = true)
 	{
 		$CI = &get_instance();
+		$CI->load->helper('uuid');
 		if ($UUID)
-			$CI->db->set('id', 'UUID()', FALSE);
+			$data['id'] = UUID::v4();
 		$data['created_at'] = date('Y-m-d H:i:s');
 		$data['deleted'] = 0;
 		$query = $CI->db->insert($table, $data);
