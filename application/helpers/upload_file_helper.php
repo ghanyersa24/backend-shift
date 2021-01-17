@@ -22,6 +22,11 @@ class UPLOAD_FILE
 		return self::uploads('xls|xlsx', $post_name, $location, $file_name, $max_size);
 	}
 
+	public static function csv($post_name, $location = null, $file_name = null, $max_size = 10000)
+	{
+		return self::uploads('csv', $post_name, $location, $file_name, $max_size);
+	}
+
 	public static function ppt($post_name, $location = null, $file_name = null, $max_size = 10000)
 	{
 		return self::uploads('ppt|pptx', $post_name, $location, $file_name, $max_size);
@@ -35,6 +40,20 @@ class UPLOAD_FILE
 	public static function rar($post_name, $location = null, $file_name = null, $max_size = 10000)
 	{
 		return self::uploads('rar|zip', $post_name, $location, $file_name, $max_size);
+	}
+	public static function getFileLocation($url)
+	{
+		$url = str_replace('%2F', '/', $url);
+		$url = str_replace('%3A', ':', $url);
+		if ($url != "" && !is_null($url))
+			return getcwd() . '/' . str_replace(base_url(), '/', $url);
+	}
+	public static function del($url)
+	{
+		$url = str_replace('%2F', '/', $url);
+		$url = str_replace('%3A', ':', $url);
+		if ($url != "" && !is_null($url))
+			unlink(getcwd() . '/' . str_replace(base_url(), '/', $url));
 	}
 	public static function delete($input_name)
 	{

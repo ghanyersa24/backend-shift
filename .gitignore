@@ -3,7 +3,7 @@
 uploads/blogs/*
 uploads/premium/*
 uploads/report/*
-uploads/untitle/*
+uploads/untitles/*
 !uploads/index.html
 !uploads/blogs/index.html
 !uploads/premium/index.html
