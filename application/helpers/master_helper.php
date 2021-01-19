@@ -69,9 +69,16 @@ function get($params, $constrains = null)
 	$CI = &get_instance();
 	return $CI->input->get($params);
 }
+
+function input_json($key)
+{
+	$_POST = json_decode(file_get_contents('php://input'), true);
+	return $_POST[$key];
+}
+
 function post($params, $constrains = null)
 {
-    // $_POST= json_decode( file_get_contents('php://input'),true);
+	// $_POST= json_decode( file_get_contents('php://input'),true);
 	if (isset($_POST[$params])) {
 		$value = $_POST[$params];
 		$value = str_replace('%3A', ':', $value);

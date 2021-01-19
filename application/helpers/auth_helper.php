@@ -5,8 +5,9 @@ class Auth
 	public static function login($table, $where_auth, $password)
 	{
 		$find = DB_MODEL::find($table, $where_auth);
+
 		if ($find->error)
-			error("username and password isn't match");
+			error("username and password isn't found", $where_auth);
 		else {
 			if (password_verify($password, $find->data->password)) {
 				$find->data->token = AUTHORIZATION::generateToken($find->data);
