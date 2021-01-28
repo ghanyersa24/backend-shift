@@ -27,7 +27,23 @@ class Users extends CI_Controller
 	public function get($id = null)
 	{
 		if (is_null($id)) {
-			$do = DB_MODEL::all($this->table);
+			$where = [];
+			$type = get("type");
+			$event = get("event");
+			$category = get("category");
+			$attendance = get("attendance");
+			$event_id = get("eventId");
+			if ($type)
+				$where["event_type"] = $type;
+			if ($event)
+				$where["event"] = $event;
+			if ($category)
+				$where["category"] = $category;
+			if ($attendance)
+				$where["attendance"] = $attendance;
+			if ($event_id)
+				$where["event_id"] = $event_id;
+			$do = DB_CUSTOM::users($where);
 		} else {
 			$do = DB_MODEL::find($this->table, array("id" => $id));
 		}
@@ -36,6 +52,15 @@ class Users extends CI_Controller
 			success("data " . $this->table . " berhasil ditemukan", $do->data);
 		else
 			error("data " . $this->table . " gagal ditemukan");
+	}
+
+	public function allHistory($user_id)
+	{
+		$do = DB_CUSTOM::allHistory($user_id);
+		if (!$do->error)
+			success("data berhasil ditemukan", $do->data);
+		else
+			error("data gagal ditemukan");
 	}
 
 	public function update()

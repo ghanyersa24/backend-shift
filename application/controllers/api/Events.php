@@ -34,32 +34,55 @@ class Events extends CI_Controller
 
 		$do = DB_MASTER::insert($this->table, $data, false);
 		if (!$do->error) {
-			// 			$act = $this->categories($do->data['id']);
-			// 			if (!$act->error)
-			success("data " . $this->table . " berhasil ditambahkan", $do->data);
-			// 			error("terjadi kesalahan saat menambahkan kategori");
+			$act = $this->categories($do->data['id']);
+			if (!$act->error)
+				success("data " . $this->table . " berhasil ditambahkan", $do->data);
+			error("terjadi kesalahan saat menambahkan kategori");
 		} else
 			error("data " . $this->table . " gagal ditambahkan");
 	}
 
 	private function categories($event_id)
 	{
-		DB_MODEL::delete('event_category', ['event_id' => $event_id]);
+		DB_MODEL::delete('events_has_categories', ['events_id' => $event_id]);
 		$categories = post('categories');
+		$categories = explode(",", $categories);
 		$data = [];
 		foreach ($categories as  $category) {
-			array_push($data, ['event_id' => $event_id, 'category_id' => $category]);
+			array_push($data, [
+				'id' => UUID::v4(),
+				'events_id' => $event_id,
+				'categories_id' => $category,
+				'created_at' => date('Y-m-d H:i:s'),
+				'created_by' => AUTHORIZATION::User()->id
+			]);
 		}
-		$do = DB_MODEL::insert_any('event_category', $data);
-		return $do->error;
+		$do = DB_MODEL::insert_any('events_has_categories', $data);
+		return $do;
 	}
 
 	public function get($id = null)
 	{
+		$select = "events.*,(
+			SELECT
+				GROUP_CONCAT(`events_has_categories`.`categories_id`)
+			FROM
+				`events_has_categories`
+			WHERE
+				`events_has_categories`.`events_id` = `events`.`id` AND `events_has_categories`.`deleted`=0
+		) categories";
 		if (is_null($id)) {
-			$do = DB_MODEL::all($this->table);
+			$do = DB_MODEL::all($this->table, $select);
+			if (!$do->error) {
+				foreach ($do->data as $data) {
+					$data->categories = explode(",", $data->categories);
+				}
+			}
 		} else {
-			$do = DB_MODEL::find($this->table, array("id" => $id));
+			$do = DB_MODEL::find($this->table, array("id" => $id), $select);
+			if (!$do->error) {
+				$do->data->categories = explode(",", $do->data->categories);
+			}
 		}
 		if (!$do->error)
 			success("data " . $this->table . " berhasil ditemukan", $do->data);
@@ -82,15 +105,15 @@ class Events extends CI_Controller
 			$data['img'] = UPLOAD_FILE::update('img', 'img');
 
 		$where = array(
-			"id" => post('id'),
+			"id" => $id = post('id', "required"),
 		);
 
 		$do = DB_MODEL::update($this->table, $where, $data);
 		if (!$do->error) {
-			// 			$act = $this->categories($do->data['id']);
-			// 			if (!$act->error)
-			success("data " . $this->table . " berhasil diubah", $do->data);
-			// 			error("terjadi kesalahan saat menambahkan kategori");
+			$act = $this->categories($id);
+			if (!$act->error)
+				success("data " . $this->table . " berhasil diubah", $do->data);
+			error("terjadi kesalahan saat menambahkan kategori");
 		} else
 			error("data " . $this->table . " gagal diubah");
 	}

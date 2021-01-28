@@ -185,6 +185,14 @@ function unique($params, $value, $table)
 		error("$message sudah digunakan");
 	return $value;
 }
+function update_unique($params, $value, $table)
+{
+	$temp = explode("&", $table);
+	$found = DB_MODEL::find($temp[0], array($params => $value, 'id !=' => $temp[1]));
+	if (!$found->error)
+		error("$params sudah digunakan");
+	return $value;
+}
 
 function email($params, $value)
 {
