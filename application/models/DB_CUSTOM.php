@@ -30,7 +30,7 @@ class DB_CUSTOM extends CI_Model
 		if (isset($where['event_type'])) {
 			$types = explode(",", $where['event_type']);
 			for ($i = 0; $i < count($types); $i++) {
-				$query = $query->or_where("events.event_type =", $types[$i]);
+				$query = $query->where("events.event_type =", $types[$i]);
 			}
 		}
 
@@ -62,7 +62,7 @@ class DB_CUSTOM extends CI_Model
 	public static function allHistory($user_id)
 	{
 		$CI = &get_instance();
-		$query = $CI->db->select("leads.*,events.event,progress.nominal,progress.reason,progress.status")
+		$query = $CI->db->select("leads.*,events.event,events.start_time,events.end_time,progress.nominal,progress.reason,progress.status status_progress")
 			->from("progress")
 			->join("leads", "progress.leads_id=leads.id")
 			->join("events", "leads.events_id=events.id")

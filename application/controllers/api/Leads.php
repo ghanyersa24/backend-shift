@@ -9,6 +9,7 @@ class Leads extends CI_Controller
 		"diterima",
 		"ditolak",
 		"dibayar",
+		"hadir",
 	];
 	public function __construct()
 	{
@@ -40,7 +41,7 @@ class Leads extends CI_Controller
 			"reason" => post("reason")
 		];
 		if ($idx == 3) {
-			$progress["file"] = UPLOAD_FILE::img('file', $event_id);
+// 			$progress["file"] = UPLOAD_FILE::img('file', $event_id);
 			$progress["nominal"] = post("nominal", "required|rupiah");
 			$progress["status"] = "dibayar";
 		}
@@ -158,7 +159,7 @@ class Leads extends CI_Controller
 			"events_id" => $event_id,
 			"users_id" => $do->data["id"]
 		];
-		$this->insert_lead($data);
+		return $this->insert_lead($data);
 	}
 
 	private function insert_lead($data)
@@ -170,7 +171,9 @@ class Leads extends CI_Controller
 			$do = DB_MODEL::insert($this->table, $data);
 			if ($do->error)
 				error("terjadi kesalahan saat input users");
-		}
+			return $do->data;
+		}else
+		    return false;
 	}
 
 	public function upload()
@@ -191,4 +194,56 @@ class Leads extends CI_Controller
 		UPLOAD_FILE::del($url);
 		success("data dari csv", $data);
 	}
+	
+	public function migrasi()
+	{
+		$url = UPLOAD_FILE::csv("csv");
+		$location = UPLOAD_FILE::getFileLocation($url);
+		$file = fopen($location, "r");
+		$data = [];
+		$i = 0;
+		while (!feof($file)) {
+			$read = fgetcsv($file);
+			if ($read && $i) {
+				array_push($data, ["name" => $read[0], "email" => $read[1], "phone" => $read[2], "events_id" => $read[3]]);
+			}
+			$i++;
+		}
+		fclose($file);
+		UPLOAD_FILE::del($url);
+		success("data dari csv", $data);
+	}
+	
+	public function data_migrasi()
+	{
+		$_POST = json_decode(file_get_contents('php://input'), true);
+		$leads = $_POST['leads'];
+		for ($i = 0; $i < count($leads); $i++) {
+			$lead = $leads[$i];
+			$user = ["phone" => $lead["phone"], "email" => $lead["email"]];
+			$find = DB_MODEL::find("users", $user);
+			if ($find->error) {
+			    $user["name"]=$lead["name"];
+				$addLead=$this->insert_user($user, $lead["events_id"]);
+			    $this->progress_migrate($addLead["id"]);
+			} else {
+				$addLead=$this->insert_lead([
+					"events_id" => $lead["events_id"],
+					"users_id" => $find->data->id,
+				]);
+				if($addLead)
+			    $this->progress_migrate($addLead["id"]);
+			}
+		}
+		success("data berhasil ditambahkan", []);
+	}
+	
+	private function progress_migrate($lead_id){
+	   $progress = [
+			"leads_id" => $lead_id,
+			"status" => $this->list_status[4]
+		];
+		DB_MODEL::insert("progress", $progress);
+	}
+	
 }
