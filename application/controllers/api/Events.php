@@ -69,7 +69,7 @@ class Events extends CI_Controller
 			FROM
 				`events_has_categories`
 			WHERE
-				`events_has_categories`.`events_id` = `events`.`id` AND `events_has_categories`.`deleted`=0
+				`events_has_categories`.`events_id` = `events`.`id` AND `events_has_categories`.`deleted_at`=NULL
 		) categories";
 		if (is_null($id)) {
 			$do = DB_MODEL::all($this->table, $select);

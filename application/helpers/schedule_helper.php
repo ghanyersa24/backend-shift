@@ -23,9 +23,9 @@ class SCHEDULE
             if ($date->date >= date("Y-m-d", strtotime($event->start_time)) && $sesi <= $session) {
                 foreach ($patterns as  $pattern) {
                     if ($sesi <= $session && $pattern["day"] == $date->day) {
-                        $scan_code = random_int(1000000, 999999);
+                        $scan_code = random_int(100000, 999999);
                         while (in_array($scan_code, $list_scan_code)) {
-                            $scan_code = random_int(1000000, 999999);
+                            $scan_code = random_int(100000, 999999);
                         }
                         $list_scan_code[] = $scan_code;
                         $list[] = [
