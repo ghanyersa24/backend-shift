@@ -10,7 +10,7 @@ class Login extends CI_Controller
 		$password = $_POST['password'];
 		if (!$email || !$password)
 			error("email dan password tidak boleh kosong");
-		$data = Auth::login('users', ['email' => $email], $password);
+		$data = Auth::login('u1002933_lms.users', ['email' => $email], $password);
 		$data->token = AUTHORIZATION::generateToken($data);
 		success("Welcome to Administrator's system", $data);
 	}
