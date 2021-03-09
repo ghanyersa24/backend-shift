@@ -18,16 +18,23 @@ class SCHEDULE
     public static function GENERATE($list, $sesi, $date_list, $event, $patterns)
     {
         $session = input_json("session");
+        $list_scan_code = [];
         foreach ($date_list as $date) {
             if ($date->date >= date("Y-m-d", strtotime($event->start_time)) && $sesi <= $session) {
                 foreach ($patterns as  $pattern) {
                     if ($sesi <= $session && $pattern["day"] == $date->day) {
+                        $scan_code = random_int(1000000, 999999);
+                        while (in_array($scan_code, $list_scan_code)) {
+                            $scan_code = random_int(1000000, 999999);
+                        }
+                        $list_scan_code[] = $scan_code;
                         $list[] = [
                             "id" => UUID::v4(),
                             "name" => "sesi " . $sesi,
                             "events_id" => $event->id,
                             "start" => $date->date . " " . $pattern["start"],
                             "end" => $date->date . " " . $pattern["end"],
+                            "code" => $scan_code,
                             "created_at" => date('Y-m-d H:i:s'),
                             "created_by" => AUTHORIZATION::User()->id,
                             "updated_at" => date('Y-m-d H:i:s'),

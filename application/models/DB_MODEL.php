@@ -13,13 +13,13 @@ class DB_MODEL extends CI_Model
 	public static function all($table, $select = '*')
 	{
 		$CI = &get_instance();
-		return true($CI->db->select($select)->where(['deleted' => 0])->order_by("created_at", 'DESC')->get($table)->result());
+		return true($CI->db->select($select)->where(['deleted_at' => null])->order_by("created_at", 'DESC')->get($table)->result());
 	}
 
 	public static function where($table, $where, $select = '*')
 	{
 		$CI = &get_instance();
-		$query = $CI->db->select($select)->where(['deleted' => 0])->where($where)->order_by("created_at", 'DESC')->get($table);
+		$query = $CI->db->select($select)->where(['deleted_at' => null])->where($where)->order_by("created_at", 'DESC')->get($table);
 		if ($query)
 			return true($query->result());
 		else
@@ -29,7 +29,7 @@ class DB_MODEL extends CI_Model
 	public static function like($table, $where, $like, $select = '*')
 	{
 		$CI = &get_instance();
-		$query = $CI->db->select($select)->where(['deleted' => 0])->where($where)->like($like)->order_by("created_at", 'DESC')->get($table);
+		$query = $CI->db->select($select)->where(['deleted_at' => null])->where($where)->like($like)->order_by("created_at", 'DESC')->get($table);
 		if ($query)
 			return true($query->result());
 		else
@@ -39,13 +39,13 @@ class DB_MODEL extends CI_Model
 	public static function limit($table, $limit, $select = '*')
 	{
 		$CI = &get_instance();
-		return true($CI->db->select($select)->where(['deleted' => 0])->limit($limit)->order_by("created_at", 'DESC')->get($table)->result());
+		return true($CI->db->select($select)->where(['deleted_at' => null])->limit($limit)->order_by("created_at", 'DESC')->get($table)->result());
 	}
 
 	public static function find($table, $where, $select = '*')
 	{
 		$CI = &get_instance();
-		$query = $CI->db->select($select)->where(['deleted' => 0])->where($where)->limit(1)->order_by("created_at", 'DESC')->get($table);
+		$query = $CI->db->select($select)->where(['deleted_at' => null])->where($where)->limit(1)->order_by("created_at", 'DESC')->get($table);
 		if ($CI->db->affected_rows() !== 0)
 			return true($query->row());
 		else
@@ -108,7 +108,7 @@ class DB_MODEL extends CI_Model
 
 	public static function delete($table, $where)
 	{
-		return self::update($table, $where, ['deleted' => 1]);
+		return self::update($table, $where, ['deleted_at' => date('Y-m-d H:i:s')]);
 		// $CI = &get_instance();
 		// $query = $CI->db->where($where)->delete($table);
 		// if ($CI->db->affected_rows() !== 0)
@@ -116,14 +116,23 @@ class DB_MODEL extends CI_Model
 		// else
 		// 	return false();
 	}
+	public static function force_delete($table, $where)
+	{
+		$CI = &get_instance();
+		$query = $CI->db->where($where)->delete($table);
+		if ($CI->db->affected_rows() !== 0)
+			return true($query);
+		else
+			return false();
+	}
 
 	public static function join($table_join, $to_table,  $on = null, $type = 'inner', $where = [], $select = '*')
 	{
 		$CI = &get_instance();
 		if (is_null($on))
-			$query = $CI->db->select($select)->from($to_table)->where(["$table_join.deleted" => 0, "$to_table.deleted" => 0])->where($where)->join($table_join, $table_join . '.' . $to_table . '_id = ' . $to_table . '.id', $type)->get();
+			$query = $CI->db->select($select)->from($to_table)->where(["$table_join.deleted_at" => null, "$to_table.deleted_at" => null])->where($where)->join($table_join, $table_join . '.' . $to_table . '_id = ' . $to_table . '.id', $type)->get();
 		else
-			$query = $CI->db->select($select)->from($to_table)->where(["$table_join.deleted" => 0, "$to_table.deleted" => 0])->where($where)->join($table_join, $on, $type)->get();
+			$query = $CI->db->select($select)->from($to_table)->where(["$table_join.deleted_at" => null, "$to_table.deleted_at" => null])->where($where)->join($table_join, $on, $type)->get();
 		if ($query)
 			return true($query->result());
 		else

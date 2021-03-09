@@ -17,8 +17,8 @@ class Patterns extends CI_Controller
 		if (!$session)
 			error("sesi tidak boleh kosong atau 0");
 		// $events_id = 6;
-		DB_MODEL::delete($this->table, ["events_id" => $events_id]);
-		DB_MODEL::delete("schedules", ["events_id" => $events_id]);
+		DB_MODEL::force_delete($this->table, ["events_id" => $events_id]);
+		DB_MODEL::force_delete("schedules", ["events_id" => $events_id]);
 		DB_MODEL::update("events", ["id" => $events_id], ["session" => $session]);
 		$event = DB_MODEL::find("events", ["id" => $events_id]);
 		if ($event->error)
